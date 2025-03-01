@@ -1,0 +1,18 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+const string INPUT_FILE = "25S_COP4610_Project2_InputFile_s.txt";
+
+void readInputFile(int &processSize, int &pageSize, vector<int> &pageTable, int &logicalAddress) {
+    ifstream file(INPUT_FILE);
+    
+    if (!file) {
+        cerr << "Error: Unable to open " << INPUT_FILE << ". Ensure the file exists and is named correctly." << endl;
+        exit(1);
+    }
+
+    file >> hex >> processSize >> pageSize;
