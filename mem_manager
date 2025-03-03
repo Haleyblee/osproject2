@@ -18,12 +18,12 @@ void readInputFile(int &processSize, int &pageSize, vector<int> &pageTable, int 
     }
 
     // Read process size and page size
-    file >> hex >> processSize >> pageSize;
+   file >> hex >> numLocationSize >> numLocationsOnPage;
 
     // Calculate the number of pages
-    int totalPages = ceil((double)processSize / pageSize);
-    cout << "Number of locations in program: 0x" << hex << processSize 
-         << " Number of locations per page: 0x" << hex << pageSize << endl;
+   int totalPages = ceil((double)numLocationSize / numLocationsOnPage);
+    cout << "Number of locations in program: 0x" << hex << numLocationSize 
+     << " Number of locations per page: 0x" << hex << numLocationsOnPage << endl;
     cout << "Number of pages: " << totalPages << " Page numbers: 0 - " << (totalPages - 1) << endl;
 
     // Read the page table (frame assignments)
@@ -31,44 +31,44 @@ void readInputFile(int &processSize, int &pageSize, vector<int> &pageTable, int 
     int frameNumber;
     for (int i = 0; i < totalPages; ++i) {
         file >> hex >> frameNumber;
-        pageTable.push_back(frameNumber);
+        numOfPages.push_back(frameNumber);
     }
-
     // Display the Page Map Table (PMT)
     cout << "The PMT is:\nPage#   Frame#" << endl;
     cout << "--------------------------" << endl;
-    for (size_t i = 0; i < pageTable.size(); ++i) {
-        cout << "  " << i << "     0x" << hex << pageTable[i] << endl;
+    int frameNumber;
+    for (size_t i = 0; i < numOfPages.size(); ++i) {
+        cout << "  " << i << "     0x" << hex << numOfPages[i] << endl;
     }
 
     // Read the logical address
-    file >> hex >> logicalAddress;
+    file >> hex >> logicalMemoryLocation;
     file.close();
 }
 
 // Function to compute and print the physical address mapping
-void computePhysicalAddress(int processSize, int pageSize, const vector<int> &pageTable, int logicalAddress) {
+void computePhysicalAddress(int numLocationSize, int numLocationsOnPage, const vector<int> &numOfPages, int logicalMemoryLocation) {
     cout << "\nNow reading the logical memory location of interest..." << endl;
-    cout << "The logical memory location of interest: 0x" << hex << logicalAddress << endl;
+    cout << "The logical memory location of interest: 0x" << hex << logicalMemoryLocation << endl;
 
     // Calculate page number and offset
-    int pageNumber = logicalAddress / pageSize;
-    int offset = logicalAddress % pageSize;
+    int pageNumber = logicalMemoryLocation / numLocationsOnPage;
+    int offset = logicalMemoryLocation % numLocationsOnPage;
 
     // Validate if pageNumber exists in pageTable
-    if (pageNumber >= (int)pageTable.size()) {
+    if (pageNumber >= (int)numOfPages.size()) {
         cerr << "Error: Logical address out of range!" << endl;
         return;
     }
 
     // Retrieve the frame number from PMT
-    int frameNumber = pageTable[pageNumber];
+    int frameNumber = numOfPages[pageNumber];
 
     // Calculate absolute memory address
-    int physicalAddress = (frameNumber * pageSize) + offset;
+   int physicalAddress = (frameNumber * numLocationsOnPage) + offset;
 
     // Print results
-    cout << "Logical address 0x" << hex << logicalAddress << " belongs to page: " << pageNumber << endl;
+    cout << "Logical address 0x" << hex << logicalMemoryLocation << " belongs to page: " << pageNumber << endl;
     cout << "Frame number: 0x" << hex << frameNumber << endl;
     cout << "Offset: 0x" << hex << offset << endl;
     cout << "Physical memory location: 0x" << hex << physicalAddress << endl;
@@ -76,14 +76,14 @@ void computePhysicalAddress(int processSize, int pageSize, const vector<int> &pa
 
 int main() {
     // Input parameters
-    int processSize, pageSize, logicalAddress;
-    vector<int> pageTable;
+    int numLocationSize, numLocationsOnPage, logicalMemoryLocation;
+    vector<int> numOfPages;
 
     // Read input file
-    readInputFile(processSize, pageSize, pageTable, logicalAddress);
+    readInputFile(numLocationSize, numLocationsOnPage, numOfPages, logicalMemoryLocation);
 
     // Compute and display the memory mapping
-    computePhysicalAddress(processSize, pageSize, pageTable, logicalAddress);
+    computePhysicalAddress(numLocationSize, numLocationsOnPage, numOfPages, logicalMemoryLocation);
 
     return 0;
 }
